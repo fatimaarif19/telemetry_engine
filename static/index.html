@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edge Telemetry & Threat Detection Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans p-6">
+    <div class="max-w-6xl mx-auto">
+        <header class="flex justify-between items-center mb-8 border-b border-slate-700 pb-4">
+            <div>
+                <h1 class="text-2xl font-bold text-cyan-400">Edge Telemetry Engine</h1>
+                <p class="text-sm text-slate-400">Real-Time ML Anomaly & Threat Detection Pipeline</p>
+            </div>
+            <div id="status-badge" class="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-900 text-emerald-300">
+                SYSTEM ONLINE
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-lg">
+                <h3 class="text-xs uppercase text-slate-400 font-bold mb-1">Active Stream Status</h3>
+                <p class="text-2xl font-semibold text-white">Multi-Threaded</p>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-lg">
+                <h3 class="text-xs uppercase text-slate-400 font-bold mb-1">Inference Engine</h3>
+                <p class="text-2xl font-semibold text-cyan-300">Isolation Forest</p>
+            </div>
+            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 shadow-lg">
+                <h3 class="text-xs uppercase text-slate-400 font-bold mb-1">Polling Frequency</h3>
+                <p class="text-2xl font-semibold text-emerald-400">800ms / Node</p>
+            </div>
+        </div>
+
+        <div class="bg-slate-800 rounded-xl border border-slate-700 overflow-hidden shadow-lg">
+            <div class="px-6 py-4 border-b border-slate-700 bg-slate-800/50">
+                <h2 class="font-bold text-lg text-slate-200">Live Telemetry Ingestion Log</h2>
+            </div>
+            <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                    <thead class="bg-slate-900/50 text-slate-400 uppercase text-xs sticky top-0">
+                        <tr>
+                            <th class="p-4">Timestamp</th>
+                            <th class="p-4">CPU (%)</th>
+                            <th class="p-4">Memory (%)</th>
+                            <th class="p-4">Network (Mbps)</th>
+                            <th class="p-4">RPS</th>
+                            <th class="p-4">Analysis Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body" class="divide-y divide-slate-700/50">
+                        <!-- Populated dynamically via JS -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function fetchLogs() {
+            try {
+                const response = await fetch('/api/v1/logs');
+                const logs = await response.json();
+                const tbody = document.getElementById('log-table-body');
+                tbody.innerHTML = '';
+                
+                logs.forEach(entry => {
+                    const row = document.createElement('tr');
+                    const isAnomaly = entry.analysis.is_anomaly;
+                    row.className = isAnomaly ? 'bg-rose-950/40 hover:bg-rose-900/40' : 'hover:bg-slate-700/30';
+                    
+                    row.innerHTML = `
+                        <td class="p-4 text-slate-400 font-mono text-xs">${new Date(entry.timestamp).toLocaleTimeString()}</td>
+                        <td class="p-4 font-mono">${entry.metrics.cpu_usage}%</td>
+                        <td class="p-4 font-mono">${entry.metrics.memory_usage}%</td>
+                        <td class="p-4 font-mono">${entry.metrics.network_throughput_mbps}</td>
+                        <td class="p-4 font-mono">${entry.metrics.request_rate_rps}</td>
+                        <td class="p-4">
+                            <span class="px-2.5 py-1 rounded-full text-xs font-bold ${isAnomaly ? 'bg-rose-900 text-rose-200' : 'bg-emerald-900 text-emerald-200'}">
+                                ${isAnomaly ? '🚨 ANOMALY DETECTED' : 'NORMAL'}
+                            </span>
+                        </td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            } catch (err) {
+                console.error("Failed to fetch telemetry logs:", err);
+            }
+        }
+        setInterval(fetchLogs, 1000);
+        fetchLogs();
+    </script>
+</body>
+</html>
