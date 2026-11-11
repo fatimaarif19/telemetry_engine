@@ -1,6 +1,5 @@
 # Edge Telemetry & Threat Detection Engine
-
-A lightweight, concurrent real-time telemetry ingestion and ML-powered anomaly detection pipeline.
+A lightweight, concurrent realtime telemetry ingestion and ML powered anomaly detection pipeline.
 
 ## Tech Stack
 * **Backend:** FastAPI, Python `asyncio`, Multi-threading
@@ -13,7 +12,7 @@ A lightweight, concurrent real-time telemetry ingestion and ML-powered anomaly d
 2. **Inference:** FastAPI backend scores incoming payloads against an unsupervised Isolation Forest model in real time.
 3. **Dashboard:** Operator UI visualizes data streams and flags security anomalies instantly.
 
-## ⚙️ Quick Start
+## Quick Start
 
 **Install dependencies:**
 pip install -r requirements.txt
